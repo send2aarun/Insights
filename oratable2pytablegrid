@@ -1,0 +1,41 @@
+
+
+from sqlalchemy import create_engine, MetaData, Table
+engine = create_engine('oracle+cx_oracle://hr:hr@192.168.16.128:1521/db11g')
+connection = engine.connect()
+
+# Replace 'your_table_name' with the name of the table you want to inspect.
+table_name = 'employees'
+
+# Create a metadata object and bind it to the engine
+metadata = MetaData(bind=engine)
+
+# Reflect the table to get its structure
+table = Table(table_name, metadata, autoload=True, autoload_with=engine)
+
+# Get the column names from the table
+column_names = [column.name for column in table.columns]
+
+
+result = connection.execute("SELECT * FROM employees")
+rows_as_lists = []
+
+# Iterate through the result set and convert each row to a list
+for row in result:
+    rows_as_lists.append(list(row))
+
+engine.dispose()
+
+
+from tabulate import tabulate
+
+# Sample data as lists of lists
+data = rows_as_lists
+
+# Define headers
+headers = column_names
+
+# Display data in a table
+table = tabulate(data, headers=headers, tablefmt='grid')
+
+print(table)
